@@ -68,10 +68,8 @@ List<AppInfo> _apps = [
   AppInfo(
     logoPath: "lib/apps/noise-cancelling/assets/logo.png",
     title: "Noise Cancelling",
-    description: "Choose your Noise Cancelling mode",
-    widget: SelectEarableView(startApp: (wearable, sensorConfigProvider) {
-      return NoiseCancellingUIView();
-    },),
+    description: "Choose your noise cancelling mode",
+    widget: NoiseCancellingUIView(),
   ),
 ];
 
