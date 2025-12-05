@@ -1,0 +1,3 @@
+[submodule "open_wearable/modules/open_earable_flutter"]
+	path = open_wearable/modules/open_earable_flutter
+	url = https://github.com/melikeo/open_earable_flutter.git

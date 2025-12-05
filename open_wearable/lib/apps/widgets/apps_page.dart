@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:open_earable_flutter/open_earable_flutter.dart';
 import 'package:open_wearable/apps/heart_tracker/widgets/heart_tracker_page.dart';
+import 'package:open_wearable/apps/noise-cancelling/view/noise-cancelling_ui_view.dart';
 import 'package:open_wearable/apps/posture_tracker/model/earable_attitude_tracker.dart';
 import 'package:open_wearable/apps/posture_tracker/view/posture_tracker_view.dart';
 import 'package:open_wearable/apps/widgets/select_earable_view.dart';
@@ -63,6 +64,14 @@ List<AppInfo> _apps = [
         );
       },
     ),
+  ),
+  AppInfo(
+    logoPath: "lib/apps/noise-cancelling/assets/logo.png",
+    title: "Noise Cancelling",
+    description: "Choose your Noise Cancelling mode",
+    widget: SelectEarableView(startApp: (wearable, sensorConfigProvider) {
+      return NoiseCancellingUIView();
+    },),
   ),
 ];
 
