@@ -72,7 +72,7 @@ class NoiseCancellingUIView extends StatefulWidget {
             PlatformElevatedButton(
               onPressed: _isLoading
                   ? null
-                  : () => _applyMode('Normal', const NormalMode()),
+                  : () => _applyMode('No high pitch sudden sounds (Normal)', const NormalMode()),
               child: PlatformText("Filter 1 / Bahn Filter"),
             ),
             const SizedBox(height: 10),
@@ -80,7 +80,7 @@ class NoiseCancellingUIView extends StatefulWidget {
             PlatformElevatedButton(
               onPressed: _isLoading
                   ? null
-                  : () => _applyMode('Transparency', const TransparencyMode()),
+                  : () => _applyMode('Dialogue Boost (Transparency)', const TransparencyMode()),
               child: PlatformText("Filter 2 / Dialogue Boost"),
             ),
             const SizedBox(height: 10),
@@ -90,6 +90,23 @@ class NoiseCancellingUIView extends StatefulWidget {
                   ? null
                   : () => _applyMode('Noise Cancellation', const NoiseCancellationMode()),
               child: PlatformText("Filter 3 / Noise Cancelling"),
+            ),
+            PlatformElevatedButton(
+              onPressed: () => showDialog<String>(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text('Add new mode'),
+                  content: const Text('AlertDialog description'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'Cancel'),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(onPressed: () => Navigator.pop(context, 'OK'), child: const Text('OK')),
+                  ],
+                ),
+              ),
+              child: const Text('Add new mode'),
             ),
           ],
         )
