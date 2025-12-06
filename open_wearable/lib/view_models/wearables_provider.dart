@@ -167,4 +167,30 @@ class WearablesProvider with ChangeNotifier {
     }
     return _sensorConfigurationProviders[wearable]!;
   }
+
+
+  Future<bool> applyAudioModeToAll(AudioMode mode) async {
+
+    final audioWearables = _wearables
+        .whereType<AudioModeManager>()
+        .toList();
+
+    if (audioWearables.isEmpty) {
+      logger.i('No wearables with AudioModeManager capability found.');
+      return false;
+    }
+
+    for (var wearable in audioWearables) {
+      try {
+        wearable.setAudioMode(mode);
+      } catch (e) {
+        logger.w('Failed to set audio mode for $wearable: $e');
+        return false;
+      }
+    }
+    return true;
+  }
+
+
+
 }
