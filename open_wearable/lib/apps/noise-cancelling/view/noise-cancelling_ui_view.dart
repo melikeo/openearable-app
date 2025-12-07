@@ -16,6 +16,7 @@ class NoiseCancellingUIView extends StatefulWidget {
 
   String? _selectedMode;
   bool _isLoading = false;
+  String? _selectedNewFilter;
 
   Future<void> _applyMode(String modeName, AudioMode mode) async {
     setState(() => _isLoading = true);
@@ -41,6 +42,145 @@ class NoiseCancellingUIView extends StatefulWidget {
       );
     }
   }
+  Widget _buildFilterButton({
+    required String title,
+    required String subtitle,
+    required String modeName,
+    required AudioMode mode,
+  }) {
+    final isSelected = _selectedMode == modeName;
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
+    return PlatformElevatedButton(
+      onPressed: _isLoading ? null : () => _applyMode(modeName, mode),
+
+      material: (_, __) => MaterialElevatedButtonData(
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.all(15),
+          minimumSize: Size.fromHeight(72),
+          side: BorderSide(
+            color: isSelected ? primaryColor : Colors.grey.shade300,
+            width: 1,
+          )
+        ),
+      ),
+
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: isSelected ? primaryColor : Colors.transparent,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isSelected ? primaryColor : Colors.grey,
+                width: 2,
+              ),
+            ),
+            child: isSelected ? Icon(Icons.check, color: Colors.white, size: 20) : null,
+          ),
+
+          const SizedBox(width: 16),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNewFilterButton({
+    required String title,
+    required String subtitle,
+    required StateSetter setDialogState,
+  }) {
+
+    final isSelected = _selectedNewFilter == title;
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
+    return PlatformElevatedButton(
+      onPressed: () {
+        setDialogState(() {
+          _selectedNewFilter = title;
+        });
+      },
+
+      material: (_, __) => MaterialElevatedButtonData(
+        style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.all(10),
+            minimumSize: Size.fromHeight(72),
+            side: BorderSide(
+              color: isSelected ? primaryColor : Colors.grey.shade300,
+              width: 1,
+            )
+        ),
+      ),
+
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: isSelected ? primaryColor : Colors.transparent,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isSelected ? primaryColor : Colors.grey,
+                width: 2,
+              ),
+            ),
+            child: isSelected ? Icon(Icons.check, color: Colors.white, size: 20) : null,
+          ),
+
+          const SizedBox(width: 16),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,64 +200,147 @@ class NoiseCancellingUIView extends StatefulWidget {
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 10),
 
-        child: hasAudioDevices
+        child: Column(
+
+
+          /*
+          *
+          * child: hasAudioDevices
             ? Column(
+          *
+          *
+          *  */
+
+
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            PlatformText(
-              'Choose a filter',
+            Center(
+              child: PlatformText('Choose a filter', style: TextStyle(fontSize: 20)),
             ),
+
             const SizedBox(height: 20),
 
-            PlatformElevatedButton(
-              onPressed: _isLoading
-                  ? null
-                  : () => _applyMode('No high pitch sudden sounds (Normal)', const NormalMode()),
-              child: PlatformText("Filter 1 / Bahn Filter"),
+            _buildFilterButton(
+              title: 'Filter 1 / Bahn Filter',
+              subtitle: 'No sudden, high pitch sounds',
+              modeName: 'Filter 1',
+              mode: const NormalMode(),
             ),
+
+            const SizedBox(height: 10),
+
+            _buildFilterButton(
+              title: 'Filter 2 / Dialogue Boost',
+              subtitle: 'Hear your dialogue partner better',
+              modeName: 'Filter 2',
+              mode: const TransparencyMode(),
+            ),
+
+            const SizedBox(height: 10),
+
+            _buildFilterButton(
+              title: 'Filter 3 / Noise Cancelling',
+              subtitle: 'Block all sounds',
+              modeName: 'Filter 3',
+              mode: const NoiseCancellationMode(),
+            ),
+
             const SizedBox(height: 10),
 
             PlatformElevatedButton(
-              onPressed: _isLoading
-                  ? null
-                  : () => _applyMode('Dialogue Boost (Transparency)', const TransparencyMode()),
-              child: PlatformText("Filter 2 / Dialogue Boost"),
-            ),
-            const SizedBox(height: 10),
+              child: const Text(
+                '+ Add a new filter',
+                style: TextStyle(fontSize: 18)),
 
-            PlatformElevatedButton(
-              onPressed: _isLoading
-                  ? null
-                  : () => _applyMode('Noise Cancellation', const NoiseCancellationMode()),
-              child: PlatformText("Filter 3 / Noise Cancelling"),
-            ),
-            PlatformElevatedButton(
-              onPressed: () => showDialog<String>(
-                context: context,
-                builder: (BuildContext context) => AlertDialog(
-                  title: const Text('Add new mode'),
-                  content: const Text('AlertDialog description'),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, 'Cancel'),
-                      child: const Text('Cancel'),
-                    ),
-                    TextButton(onPressed: () => Navigator.pop(context, 'OK'), child: const Text('OK')),
-                  ],
-                ),
-              ),
-              child: const Text('Add new mode'),
+
+              onPressed: () {
+                setState(() {
+                  _selectedNewFilter = null;
+                });
+
+                showDialog<String>(
+                  context: context,
+                  builder: (BuildContext dialogContext) => StatefulBuilder(
+                    builder: (context, setDialogState) {
+                      return
+                        AlertDialog(
+                          title: const Text('Add a new filter'),
+
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+
+
+                              _buildNewFilterButton(
+                                  title: 'Grocery Shopping',
+                                  subtitle: 'Reduce shopping noise',
+                                  setDialogState: setDialogState
+                              ),
+                              SizedBox(height: 10),
+                              _buildNewFilterButton(
+                                  title: 'Mouth Sounds',
+                                  subtitle: 'Block eating sounds',
+                                  setDialogState: setDialogState
+                              ),
+                              SizedBox(height: 10),
+                              _buildNewFilterButton(
+                                  title: 'Office Sounds',
+                                  subtitle: 'Keyboard clicking, etc.',
+                                  setDialogState: setDialogState
+                              ),
+                              SizedBox(height: 10),
+                              _buildNewFilterButton(
+                                  title: 'Paper Rustling',
+                                  subtitle: 'No Paper sounds',
+                                  setDialogState: setDialogState
+                              ),
+                              SizedBox(height: 10),
+                              _buildNewFilterButton(
+                                  title: 'Background Chatter',
+                                  subtitle: 'Reduce people talking',
+                                  setDialogState: setDialogState
+                              ),
+
+
+                              PlatformElevatedButton(
+                                  child: const Text(
+                                      '+ Create your own filter',
+                                      style: TextStyle(fontSize: 18)),
+                                  onPressed: () {}
+                              ),
+
+                            ],
+                          ),
+
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancel', style: TextStyle(color: Colors.red)),
+                            ),
+                            TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('OK'))
+                          ],
+                        );
+                    }
+                )
+                );
+              }
             ),
           ],
         )
+            /*
             : Center(
-                child: PlatformText(
-                  'No audio devices connected.',
-                ),
+          child: PlatformText(
+            'No audio devices connected.',
+          ),
+        ), */
+
+
+
       ),
-        ),
     );
-      },
+    },
     );
   }
   }
