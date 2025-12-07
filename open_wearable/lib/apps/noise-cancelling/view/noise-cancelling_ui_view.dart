@@ -12,11 +12,27 @@ class NoiseCancellingUIView extends StatefulWidget {
 
 }
 
-  class _NoiseCancellingUIViewState extends State<NoiseCancellingUIView> {
+  class _NoiseCancellingUIViewState extends State<NoiseCancellingUIView> with AutomaticKeepAliveClientMixin{
 
   String? _selectedMode;
   bool _isLoading = false;
   String? _selectedNewFilter;
+  List<Map<String, String>> _customFilters = [];
+
+
+  final List<Map<String, String>> _suggestedFilters = [
+    {'title': 'Grocery Shopping', 'subtitle': 'Reduce shopping noise'},
+    {'title': 'Mouth Sounds', 'subtitle': 'Block eating sounds'},
+    {'title': 'Office Sounds', 'subtitle': 'Keyboard clicking, etc.'},
+    {'title': 'Paper Rustling', 'subtitle': 'No paper sounds'},
+    {'title': 'Background Chatter', 'subtitle': 'Reduce people talking'},
+    {'title': 'Traffic Quieting', 'subtitle': 'Reduce road noise'},
+  ];
+
+
+  @override
+  bool get wantKeepAlive => true;
+
 
   Future<void> _applyMode(String modeName, AudioMode mode) async {
     setState(() => _isLoading = true);
@@ -36,12 +52,13 @@ class NoiseCancellingUIView extends StatefulWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(success
-              ? 'Mode "$modeName" applied'
+              ? '"$modeName" applied'
               : 'Error applying mode'),
         ),
       );
     }
   }
+
   Widget _buildFilterButton({
     required String title,
     required String subtitle,
@@ -182,10 +199,76 @@ class NoiseCancellingUIView extends StatefulWidget {
     );
   }
 
+  Widget _buildSuggestionFilterButton({
+    required String title,
+    required String subtitle,
+  }) {
+
+    final isSelected = _selectedNewFilter == title;
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
+    return PlatformElevatedButton(
+      onPressed: () {},
+
+      material: (_, __) => MaterialElevatedButtonData(
+        style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.all(10),
+            minimumSize: Size.fromHeight(72),
+            side: BorderSide(
+              color: Colors.grey.shade300,
+              width: 1,
+            )
+        ),
+      ),
+
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.grey,
+                width: 2,
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 16),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-
-    return Consumer<WearablesProvider>(
+  super.build(context);
+  return Consumer<WearablesProvider>(
       builder: (context, provider, child) {
 
         final hasAudioDevices = provider.wearables.any(
@@ -200,8 +283,8 @@ class NoiseCancellingUIView extends StatefulWidget {
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 10),
 
-        child: Column(
-
+        child: hasAudioDevices
+        ? Column(
 
           /*
           *
@@ -221,29 +304,39 @@ class NoiseCancellingUIView extends StatefulWidget {
             const SizedBox(height: 20),
 
             _buildFilterButton(
-              title: 'Filter 1 / Bahn Filter',
+              title: 'Train Screech Filter',
               subtitle: 'No sudden, high pitch sounds',
-              modeName: 'Filter 1',
+              modeName: 'Train Screech Filter',
               mode: const NormalMode(),
             ),
 
             const SizedBox(height: 10),
 
             _buildFilterButton(
-              title: 'Filter 2 / Dialogue Boost',
+              title: 'Dialogue Boost',
               subtitle: 'Hear your dialogue partner better',
-              modeName: 'Filter 2',
+              modeName: 'Dialogue Boost',
               mode: const TransparencyMode(),
             ),
 
             const SizedBox(height: 10),
 
             _buildFilterButton(
-              title: 'Filter 3 / Noise Cancelling',
+              title: 'Active Noise Cancelling',
               subtitle: 'Block all sounds',
-              modeName: 'Filter 3',
+              modeName: 'Active Noise Cancelling',
               mode: const NoiseCancellationMode(),
             ),
+
+            ..._customFilters.map((filter) => Column(
+              children: [
+                const SizedBox(height: 10),
+                _buildSuggestionFilterButton(
+                  title: filter['title']!,
+                  subtitle: filter['subtitle']!,
+                ),
+              ],
+            )),
 
             const SizedBox(height: 10),
 
@@ -251,7 +344,6 @@ class NoiseCancellingUIView extends StatefulWidget {
               child: const Text(
                 '+ Add a new filter',
                 style: TextStyle(fontSize: 18)),
-
 
               onPressed: () {
                 setState(() {
@@ -265,41 +357,25 @@ class NoiseCancellingUIView extends StatefulWidget {
                       return
                         AlertDialog(
                           title: const Text('Add a new filter'),
-
                           content: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
 
+                              Text('Choose from our suggestions or create your own filter.', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+                              SizedBox(height: 10),
 
-                              _buildNewFilterButton(
-                                  title: 'Grocery Shopping',
-                                  subtitle: 'Reduce shopping noise',
-                                  setDialogState: setDialogState
-                              ),
-                              SizedBox(height: 10),
-                              _buildNewFilterButton(
-                                  title: 'Mouth Sounds',
-                                  subtitle: 'Block eating sounds',
-                                  setDialogState: setDialogState
-                              ),
-                              SizedBox(height: 10),
-                              _buildNewFilterButton(
-                                  title: 'Office Sounds',
-                                  subtitle: 'Keyboard clicking, etc.',
-                                  setDialogState: setDialogState
-                              ),
-                              SizedBox(height: 10),
-                              _buildNewFilterButton(
-                                  title: 'Paper Rustling',
-                                  subtitle: 'No Paper sounds',
-                                  setDialogState: setDialogState
-                              ),
-                              SizedBox(height: 10),
-                              _buildNewFilterButton(
-                                  title: 'Background Chatter',
-                                  subtitle: 'Reduce people talking',
-                                  setDialogState: setDialogState
-                              ),
+                              ..._suggestedFilters.map((filter) => Column(
+                                children: [
+                                  _buildNewFilterButton(
+                                    title: filter['title']!,
+                                    subtitle: filter['subtitle']!,
+                                    setDialogState: setDialogState,
+                                  ),
+                                  SizedBox(height: 10),
+                                ],
+                              )),
+
+                              SizedBox(height: 20),
 
 
                               PlatformElevatedButton(
@@ -318,7 +394,21 @@ class NoiseCancellingUIView extends StatefulWidget {
                               child: const Text('Cancel', style: TextStyle(color: Colors.red)),
                             ),
                             TextButton(
-                                onPressed: () => Navigator.pop(context),
+                                onPressed: () {
+                                  if (_selectedNewFilter != null) {
+                                    setState(() {
+
+
+
+                                      _customFilters.add({
+                                        'title': _selectedNewFilter!,
+                                        'subtitle': 'Custom filter',
+                                      });
+                                      _suggestedFilters.removeWhere((filter) => filter['title'] == _selectedNewFilter);
+                                    });
+                                  }
+                                  Navigator.pop(context);
+                                },
                                 child: const Text('OK'))
                           ],
                         );
@@ -329,12 +419,12 @@ class NoiseCancellingUIView extends StatefulWidget {
             ),
           ],
         )
-            /*
+
             : Center(
           child: PlatformText(
             'No audio devices connected.',
           ),
-        ), */
+        ),
 
 
 
