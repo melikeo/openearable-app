@@ -28,6 +28,9 @@ class WearablesProvider with ChangeNotifier {
   final Map<Wearable, SensorConfigurationProvider>
       _sensorConfigurationProviders = {};
 
+  String? _selectedAudioModeName;
+  String? get selectedAudioModeName => _selectedAudioModeName;
+
   List<Wearable> get wearables => _wearables;
   Map<Wearable, SensorConfigurationProvider> get sensorConfigurationProviders =>
       _sensorConfigurationProviders;
@@ -169,7 +172,7 @@ class WearablesProvider with ChangeNotifier {
   }
 
 
-  Future<bool> applyAudioModeToAll(AudioMode mode) async {
+  Future<bool> applyAudioModeToAll(String modeName, AudioMode mode) async {
 
     final audioWearables = _wearables
         .whereType<AudioModeManager>()
@@ -188,6 +191,9 @@ class WearablesProvider with ChangeNotifier {
         return false;
       }
     }
+
+    _selectedAudioModeName = modeName;
+    notifyListeners();
     return true;
   }
 

@@ -12,7 +12,7 @@ class NoiseCancellingUIView extends StatefulWidget {
 
 }
 
-  class _NoiseCancellingUIViewState extends State<NoiseCancellingUIView> with AutomaticKeepAliveClientMixin{
+  class _NoiseCancellingUIViewState extends State<NoiseCancellingUIView>{
 
   String? _selectedMode;
   bool _isLoading = false;
@@ -30,22 +30,19 @@ class NoiseCancellingUIView extends StatefulWidget {
   ];
 
 
-  @override
-  bool get wantKeepAlive => true;
-
-
   Future<void> _applyMode(String modeName, AudioMode mode) async {
     setState(() => _isLoading = true);
 
     final provider = Provider.of<WearablesProvider>(context, listen: false);
-
-    final success = await provider.applyAudioModeToAll(mode);
+    final success = await provider.applyAudioModeToAll(modeName, mode);
 
     setState(() {
       _isLoading = false;
+      /*
       if (success) {
         _selectedMode = modeName;
       }
+       */
     });
 
     if (mounted) {
@@ -65,7 +62,9 @@ class NoiseCancellingUIView extends StatefulWidget {
     required String modeName,
     required AudioMode mode,
   }) {
-    final isSelected = _selectedMode == modeName;
+    //final isSelected = _selectedMode == modeName;
+    final provider = Provider.of<WearablesProvider>(context, listen: true);
+    final isSelected = provider.selectedAudioModeName == modeName;
     final primaryColor = Theme.of(context).colorScheme.primary;
 
     return PlatformElevatedButton(
@@ -267,7 +266,6 @@ class NoiseCancellingUIView extends StatefulWidget {
 
   @override
   Widget build(BuildContext context) {
-  super.build(context);
   return Consumer<WearablesProvider>(
       builder: (context, provider, child) {
 
